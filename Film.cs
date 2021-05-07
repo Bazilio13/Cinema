@@ -6,9 +6,13 @@ namespace Cinema
 {
     public class Film
     {
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
-        public int RunningTime { get; private set; }
+        public int RunningTime { get; set; }
+
+        public Film()
+        {
+        }
 
         public Film(string name, int runningTime)
         {
