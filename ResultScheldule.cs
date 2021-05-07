@@ -9,13 +9,18 @@ namespace Cinema
         public List<Film> Scheldule { get; set; }
         public List<Film> UniqFilms { get; private set; }
 
+        public int StartHourOfWorking { get; set; }
+        public int StartOfWorkingInMinutes { get; set; }
+
         public int RemainingWorkingTime { get; set; }
 
-        public ResultScheldule(List<Film> scheldule, int remainingWorkingTime)
+        public ResultScheldule(List<Film> scheldule, int remainingWorkingTime, int startOfWorkingInMinutes)
         {
             Scheldule = scheldule;
 
             RemainingWorkingTime = remainingWorkingTime;
+
+            StartOfWorkingInMinutes = startOfWorkingInMinutes;
 
             UniqFilms = new List<Film>();
 
@@ -25,7 +30,7 @@ namespace Cinema
         public override string ToString()
         {
             DateTime startTime = DateTime.Today;
-            startTime = startTime.AddHours(10);
+            startTime = startTime.AddMinutes(StartOfWorkingInMinutes);
             DateTime endTime = startTime;
             string result = "";
             foreach (Film film in Scheldule)
@@ -36,17 +41,6 @@ namespace Cinema
             }
             return result;
         }
-
-        //public ResultScheldule Copy ()
-        //{
-        //    List<Film> schelduleCopy = new List<Film>();
-        //    foreach (Film film in Scheldule)
-        //    {
-        //        schelduleCopy.Add(film);
-        //    }
-        //    ResultScheldule copy = new ResultScheldule(schelduleCopy, RemainingWorkingTime);
-        //    return copy;
-        //}
 
         private void GetUnqFilms()
         {

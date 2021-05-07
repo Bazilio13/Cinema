@@ -6,59 +6,75 @@ namespace Cinema
 {
     public class ResultCombinationOfScheldules
     {
-        private List<ResultScheldule> _scheldules;
-        public List<ResultScheldule> Scheldules
-        {
-            get
-            {
-                return _scheldules;
-            }
-            set
-            {
-                _scheldules = value;
-                UniqFilmsInScheldules = GetUniqFilms(Scheldules);
-                UnusedWorkingTime = 0;
-                foreach (ResultScheldule scheldule in Scheldules)
-                {
-                    UnusedWorkingTime += scheldule.RemainingWorkingTime;
-                }
-            }
-        }
+        public List<ResultScheldule> Scheldules { get; set; }
+        //{
+        //    get
+        //    {
+        //        return _scheldules;
+        //    }
+        //    set
+        //    {
+        //        _scheldules = value;
+        //        CountUniqFilms();
+        //        UnusedWorkingTime = 0;
+        //        foreach (ResultScheldule scheldule in Scheldules)
+        //        {
+        //            UnusedWorkingTime += scheldule.RemainingWorkingTime;
+        //        }
+        //    }
+        //}
 
-        public List<Film> UniqFilmsInScheldules { get; private set; }
+        public Dictionary<Film, int> UniqFilmsInScheldules { get; private set; }
+
+        public int MinCountOfSessions { get; private set; }
 
         public int UnusedWorkingTime { get; private set; }
         public ResultCombinationOfScheldules()
 
         {
             Scheldules = new List<ResultScheldule>();
+            UniqFilmsInScheldules = new Dictionary<Film, int>();
         }
 
-        public List<Film> GetUniqFilms(List<ResultScheldule> resultScheldules)
+        public void UpdFields()
         {
-            List<Film> films = new List<Film>();
-            foreach (ResultScheldule scheldule in resultScheldules)
+            UnusedWorkingTime = 0;
+            foreach (ResultScheldule scheldule in Scheldules)
             {
-                foreach (Film film in scheldule.UniqFilms)
+                foreach (Film film in scheldule.Scheldule)
                 {
-                    if (!films.Contains(film))
+                    if (!UniqFilmsInScheldules.TryAdd(film, 1))
                     {
-                        films.Add(film);
+                        UniqFilmsInScheldules[film] += 1;
                     }
+                    MinCountOfSessions++;
+                }
+                UnusedWorkingTime += scheldule.RemainingWorkingTime;
+            }
+            if (UniqFilmsInScheldules.Count != 0)
+            {
+                foreach (int countOfSessions in UniqFilmsInScheldules.Values)
+                {
+                    if (countOfSessions < MinCountOfSessions) MinCountOfSessions = countOfSessions;
                 }
             }
-            return films;
         }
 
         public ResultCombinationOfScheldules Copy()
         {
             ResultCombinationOfScheldules copy = new ResultCombinationOfScheldules();
-            List < ResultScheldule > copyResultScheldules = new List<ResultScheldule>();
+            List<ResultScheldule> copyResultScheldules = new List<ResultScheldule>();
             foreach (ResultScheldule scheldule in Scheldules)
             {
                 copyResultScheldules.Add(scheldule);
             }
             copy.Scheldules = copyResultScheldules;
+            foreach (Film film in UniqFilmsInScheldules.Keys)
+            {
+                copy.UniqFilmsInScheldules.Add(film, UniqFilmsInScheldules[film]);
+            }
+            copy.MinCountOfSessions = MinCountOfSessions;
+            copy.UnusedWorkingTime = UnusedWorkingTime;
             return copy;
         }
     }

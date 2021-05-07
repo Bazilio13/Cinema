@@ -14,9 +14,13 @@ namespace Cinema
 
         public int RemainingWorkingTime;
 
-        public Node(int workingTime, List<Film> fIlms, List<Film> currentSchedule = null)
+        public int StartOfWorkingInMinutes;
+
+        public Node(int startOfWorkingInMinutes, int workingTime, List<Film> fIlms, List<Film> currentSchedule = null)
         {
             RemainingWorkingTime = workingTime;
+
+            StartOfWorkingInMinutes = startOfWorkingInMinutes;
 
             Films = fIlms;
 
@@ -41,7 +45,7 @@ namespace Cinema
                     CurrentSchedule.Add(film);
                     List<Film> tmp = CopyFilmList(CurrentSchedule);
                     RemainingWorkingTime -= film.RunningTime;
-                    Node next = new Node(RemainingWorkingTime, Films, tmp);
+                    Node next = new Node(StartOfWorkingInMinutes, RemainingWorkingTime, Films, tmp);
                     Next.Add(next);
                     next.CreateGraph();
                 }
@@ -72,7 +76,7 @@ namespace Cinema
         {
             if (Next.Count == 0)
             {
-                return new ResultScheldule(CurrentSchedule, RemainingWorkingTime);
+                return new ResultScheldule(CurrentSchedule, RemainingWorkingTime, StartOfWorkingInMinutes);
             }
             else
             {
@@ -105,7 +109,7 @@ namespace Cinema
             }
             if (Next.Count == 0)
             {
-                results.Add(new ResultScheldule(CurrentSchedule, RemainingWorkingTime));
+                results.Add(new ResultScheldule(CurrentSchedule, RemainingWorkingTime, StartOfWorkingInMinutes));
             }
             else
             {
@@ -133,7 +137,8 @@ namespace Cinema
             return films;
         }
 
-        public ResultCombinationOfScheldules GetOptimalScheldules(int hallsCount, int hallNum = 0, List<ResultScheldule> allVariantsOfScheldules = null, ResultCombinationOfScheldules optimalScheldules = null)
+        public ResultCombinationOfScheldules GetOptimalScheldules(int hallsCount, int hallNum = 0, List<ResultScheldule> allVariantsOfScheldules = null,
+                                                                  ResultCombinationOfScheldules optimalScheldules = null)
         {
             if (allVariantsOfScheldules is null)
             {
@@ -148,12 +153,26 @@ namespace Cinema
                     }
                     optimalScheldules.Scheldules.Add(allVariantsOfScheldules[j]);
                 }
+                optimalScheldules.UpdFields();
             }
 
             ResultCombinationOfScheldules tmpCombinationOfScheldules = optimalScheldules.Copy();
             foreach (ResultScheldule scheldule in allVariantsOfScheldules)
             {
+                bool checkCoincidence = false;
+                for (int i = 0; i < hallNum; i++)
+                {
+                    if (scheldule == optimalScheldules.Scheldules[i])
+                    {
+                        checkCoincidence = true;
+                        break;
+                    }
+                }
+                if (checkCoincidence) continue;
+
                 tmpCombinationOfScheldules.Scheldules[hallNum] = scheldule;
+                tmpCombinationOfScheldules.UpdFields();
+
                 if (hallNum != hallsCount - 1)
                 {
                     tmpCombinationOfScheldules = GetOptimalScheldules(hallsCount, hallNum + 1, allVariantsOfScheldules, tmpCombinationOfScheldules);
@@ -162,24 +181,20 @@ namespace Cinema
                 {
                     optimalScheldules = tmpCombinationOfScheldules.Copy();
                 }
-                else if (tmpCombinationOfScheldules.UnusedWorkingTime < optimalScheldules.UnusedWorkingTime)
+                else if (tmpCombinationOfScheldules.UniqFilmsInScheldules.Count == optimalScheldules.UniqFilmsInScheldules.Count
+                    && tmpCombinationOfScheldules.UnusedWorkingTime <= optimalScheldules.UnusedWorkingTime)
                 {
-                    optimalScheldules = tmpCombinationOfScheldules.Copy();
+                    if (tmpCombinationOfScheldules.UnusedWorkingTime < optimalScheldules.UnusedWorkingTime)
+                    {
+                        optimalScheldules = tmpCombinationOfScheldules.Copy();
+                    }
+                    else if (tmpCombinationOfScheldules.MinCountOfSessions > optimalScheldules.MinCountOfSessions)
+                    {
+                        optimalScheldules = tmpCombinationOfScheldules.Copy();
+                    }
                 }
             }
             return optimalScheldules;
-
-            //List<ResultScheldule> tmpScheldules = CopySchelduleList(optimalScheldules);
-            //foreach (ResultScheldule scheldule in allVariantsOfScheldules)
-            //{
-            //    tmpScheldules[hallNum] = scheldule;
-            //    if (GetUniqFilms(tmpScheldules).Count > GetUniqFilms(optimalScheldules).Count)
-            //    {
-            //        optimalScheldules = tmpScheldules;
-            //    }
-            //    else if ()
-            //        { }
-            //}
         }
     }
 }

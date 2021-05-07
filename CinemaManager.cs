@@ -16,15 +16,16 @@ namespace Cinema
         public void SetRepertoire()
         {
             string userInput = "";
-            while (userInput != "please enough")
+            while (userInput != "stop")
             {
                 Film film = new Film();
                 Console.WriteLine("Введите название фильма");
-                film.Name = Console.ReadLine();
-                bool userInputCheck = true;
-                Console.WriteLine("Введите продолжительность фильма в минутах");
-                do
+                userInput = Console.ReadLine();
+                film.Name = userInput;
+                bool userInputCheck = false;
+                while (!(userInput == "stop" || userInputCheck == true))
                 {
+                    Console.WriteLine("Введите продолжительность фильма в минутах");
                     userInput = Console.ReadLine();
                     foreach (char ch in userInput)
                     {
@@ -48,7 +49,6 @@ namespace Cinema
                         Console.WriteLine("Некорректная продолжительность фильма. Введите число либо please enough для отмены добавления нового фильма");
                     }
                 }
-                while (!(userInput == "please enough" || userInputCheck == true));
             }
         }
     }

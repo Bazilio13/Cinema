@@ -14,7 +14,7 @@ namespace Cinema
             CinemaManager cinemaManager = new CinemaManager();
             cinemaManager.SetRepertoire();
 
-            Node CinemaScheldules = new Node(840, cinemaManager.Repertoire);
+            Node CinemaScheldules = new Node(600, 840, cinemaManager.Repertoire);
             CinemaScheldules.CreateGraph();
             //List<ResultScheldule> results = CinemaScheldules.GetAllVariantsOfScheldule();
             //Console.WriteLine(CinemaScheldules.GetOptimalScheldule());
